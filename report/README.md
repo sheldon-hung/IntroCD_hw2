@@ -34,4 +34,4 @@ Constructing the arithmetic expressions is the hardest part I think in this proj
 
 > Not required, but bonus point may be given.
 
-這份作業出的很不錯，作業內容說明很清楚，和課程有明顯的關係，讓我感覺有學到東西。
+這份作業出的很不錯，作業內容說明很清楚，不會遇到一些奇怪的問題，和課程有明顯的關係，讓我感覺有學到東西。
