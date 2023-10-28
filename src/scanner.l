@@ -29,83 +29,83 @@ static void appendToCurrentLine(const char *yytext_ptr);
 integer 0|[1-9][0-9]*
 float {integer}\.(0|[0-9]*[1-9])
 nonzero_integer [1-9][0-9]*
-    /* If the integral part is nonzero, then the fractional part can be either zero
-    or not. However, if the integral part is zero, the fractional part cannot be zero. */
+/* If the integral part is nonzero, then the fractional part can be either zero
+or not. However, if the integral part is zero, the fractional part cannot be zero. */
 nonzero_float ({nonzero_integer}\.(0|[0-9]*[1-9]))|(0\.([0-9]*[1-9]))
 
-    /* exclusive start condition */
+/* exclusive start condition */
 %x CCOMMENT
 
 %%
     /* Delimiter */
-"," { LIST_TOKEN(","); }
-";" { LIST_TOKEN(";"); }
-":" { LIST_TOKEN(":"); }
-"(" { LIST_TOKEN("("); }
-")" { LIST_TOKEN(")"); }
-"[" { LIST_TOKEN("["); }
-"]" { LIST_TOKEN("]"); }
+"," { LIST_TOKEN(","); return ','; }
+";" { LIST_TOKEN(";"); return ';'; }
+":" { LIST_TOKEN(":"); return ':'; }
+"(" { LIST_TOKEN("("); return '('; }
+")" { LIST_TOKEN(")"); return ')'; }
+"[" { LIST_TOKEN("["); return '['; }
+"]" { LIST_TOKEN("]"); return ']'; }
 
     /* Operator */
-"+"   { LIST_TOKEN("+"); }
-"-"   { LIST_TOKEN("-"); }
-"*"   { LIST_TOKEN("*"); }
-"/"   { LIST_TOKEN("/"); }
-"mod" { LIST_TOKEN("mod"); }
-":="  { LIST_TOKEN(":="); }
-"<"   { LIST_TOKEN("<"); }
-"<="  { LIST_TOKEN("<="); }
-"<>"  { LIST_TOKEN("<>"); }
-">="  { LIST_TOKEN(">="); }
-">"   { LIST_TOKEN(">"); }
-"="   { LIST_TOKEN("="); }
-"and" { LIST_TOKEN("and"); }
-"or"  { LIST_TOKEN("or"); }
-"not" { LIST_TOKEN("not"); }
+"+"   { LIST_TOKEN("+"); return ADD; }
+"-"   { LIST_TOKEN("-"); return SUB; }
+"*"   { LIST_TOKEN("*"); return MUL; }
+"/"   { LIST_TOKEN("/"); return DIV; }
+"mod" { LIST_TOKEN("mod"); return MOD; }
+":="  { LIST_TOKEN(":="); return ASSIGN; }
+"<"   { LIST_TOKEN("<"); return REL; }
+"<="  { LIST_TOKEN("<="); return REL; }
+"<>"  { LIST_TOKEN("<>"); return REL; }
+">="  { LIST_TOKEN(">="); return REL; }
+">"   { LIST_TOKEN(">"); return REL; }
+"="   { LIST_TOKEN("="); return REL; }
+"and" { LIST_TOKEN("and"); return AND; }
+"or"  { LIST_TOKEN("or"); return OR; }
+"not" { LIST_TOKEN("not"); return NOT; }
 
     /* Reserved Word */
-"var"     { LIST_TOKEN("KWvar"); }
-"array"   { LIST_TOKEN("KWarray"); }
-"of"      { LIST_TOKEN("KWof"); }
-"boolean" { LIST_TOKEN("KWboolean"); }
-"integer" { LIST_TOKEN("KWinteger"); }
-"real"    { LIST_TOKEN("KWreal"); }
-"string"  { LIST_TOKEN("KWstring"); }
+"var"     { LIST_TOKEN("KWvar"); return VAR; }
+"array"   { LIST_TOKEN("KWarray"); return ARRAY; }
+"of"      { LIST_TOKEN("KWof"); return OF; }
+"boolean" { LIST_TOKEN("KWboolean"); return BOOL; }
+"integer" { LIST_TOKEN("KWinteger"); return INT; }
+"real"    { LIST_TOKEN("KWreal"); return REAL; }
+"string"  { LIST_TOKEN("KWstring"); return STR; }
 
-"true"    { LIST_TOKEN("KWtrue"); }
-"false"   { LIST_TOKEN("KWfalse"); }
+"true"    { LIST_TOKEN("KWtrue"); return BOOLCONST; }
+"false"   { LIST_TOKEN("KWfalse"); return BOOLCONST; }
 
-"def"     { LIST_TOKEN("KWdef"); }
-"return"  { LIST_TOKEN("KWreturn"); }
+"def"     { LIST_TOKEN("KWdef"); return DEF; }
+"return"  { LIST_TOKEN("KWreturn"); return RETURN; }
 
-"begin"   { LIST_TOKEN("KWbegin"); }
-"end"     { LIST_TOKEN("KWend"); }
+"begin"   { LIST_TOKEN("KWbegin"); return KWBEGIN; }
+"end"     { LIST_TOKEN("KWend"); return END; }
 
-"while"   { LIST_TOKEN("KWwhile"); }
-"do"      { LIST_TOKEN("KWdo"); }
+"while"   { LIST_TOKEN("KWwhile"); return WHILE; }
+"do"      { LIST_TOKEN("KWdo"); return DO; }
 
-"if"      { LIST_TOKEN("KWif"); }
-"then"    { LIST_TOKEN("KWthen"); }
-"else"    { LIST_TOKEN("KWelse"); }
+"if"      { LIST_TOKEN("KWif"); return IF; }
+"then"    { LIST_TOKEN("KWthen"); return THEN; }
+"else"    { LIST_TOKEN("KWelse"); return ELSE; }
 
-"for"     { LIST_TOKEN("KWfor"); }
-"to"      { LIST_TOKEN("KWto"); }
+"for"     { LIST_TOKEN("KWfor"); return FOR; }
+"to"      { LIST_TOKEN("KWto"); return TO; }
 
-"print"   { LIST_TOKEN("KWprint"); }
-"read"    { LIST_TOKEN("KWread"); }
+"print"   { LIST_TOKEN("KWprint"); return PRINT; }
+"read"    { LIST_TOKEN("KWread"); return READ; }
 
     /* Identifier */
-[a-zA-Z][a-zA-Z0-9]* { LIST_LITERAL("id", yytext); }
+[a-zA-Z][a-zA-Z0-9]* { LIST_LITERAL("id", yytext); return ID; }
 
     /* Integer (decimal/octal) */
-{integer} { LIST_LITERAL("integer", yytext); }
-0[0-7]+   { LIST_LITERAL("oct_integer", yytext); }
+{integer} { LIST_LITERAL("integer", yytext); return INTCONST; }
+0[0-7]+   { LIST_LITERAL("oct_integer", yytext); return INTCONST; }
 
     /* Floating-Point */
-{float} { LIST_LITERAL("float", yytext); }
+{float} { LIST_LITERAL("float", yytext); return REALCONST; }
 
     /* Scientific Notation [Ee][+-]?[0-9]+ */
-({nonzero_integer}|{nonzero_float})[Ee][+-]?({integer}) { LIST_LITERAL("scientific", yytext); }
+({nonzero_integer}|{nonzero_float})[Ee][+-]?({integer}) { LIST_LITERAL("scientific", yytext); return REALCONST; }
 
     /* String */
 \"([^"\n]|\"\")*\" {
@@ -130,6 +130,7 @@ nonzero_float ({nonzero_integer}\.(0|[0-9]*[1-9]))|(0\.([0-9]*[1-9]))
     }
     *str_ptr = '\0';
     LIST_LITERAL("string", string_literal);
+    return STRCONST;
 }
 
     /* Whitespace */
